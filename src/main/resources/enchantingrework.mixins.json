@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "bananapix.enchantingrework.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "enchantingrework.refmap.json",
+  "mixins": [
+    "vanillachanges.singlelevel.EnchantmentMixin"
+  ],
+  "client": [
+  ],
+  "minVersion": "0.8"
+}
