@@ -3,9 +3,11 @@ package bananapix.enchantingrework.common;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
@@ -28,20 +30,17 @@ import org.slf4j.Logger;
 @Mod(EnchantingRework.MODID)
 public class EnchantingRework
 {
-    // Define mod id in a common place for everything to reference
     public static final String MODID = "enchantingrework";
-    // Directly reference a slf4j logger
+
     private static final Logger LOGGER = LogUtils.getLogger();
-    // Create a Deferred Register to hold Blocks which will all be registered under the "enchantingrework" namespace
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
-    // Create a Deferred Register to hold Items which will all be registered under the "enchantingrework" namespace
+
+    // Registries
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "enchantingrework" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    // Attunement items
-    public static final RegistryObject<Item> PAGE_OF_ATTUNEMENT_ITEM = ITEMS.register("page_of_attunement", () -> new Item(new Item.Properties()));
-    public static final RegistryObject<Item> BOOK_OF_ATTUNEMENT_ITEM = ITEMS.register("book_of_attunement", () -> new Item(new Item.Properties()));
+    // Items
+    public static final RegistryObject<Item> PAGE_OF_ATTUNEMENT = ITEMS.register("page_of_attunement", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
+    public static final RegistryObject<Item> BOOK_OF_ATTUNEMENT = ITEMS.register("book_of_attunement", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
 
     // Creates a new Block with the id "examplemod:example_block", combining the namespace and path
     // public static final RegistryObject<Block> EXAMPLE_BLOCK = BLOCKS.register("example_block", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
@@ -52,30 +51,24 @@ public class EnchantingRework
     // public static final RegistryObject<Item> EXAMPLE_ITEM = ITEMS.register("example_item", () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
     //         .alwaysEdible().nutrition(1).saturationModifier(2f).build())));
 
-    // Creates a creative tab with the id "examplemod:example_tab" for the example item, that is placed after the combat tab
-    public static final RegistryObject<CreativeModeTab> ENCHANTING_REWORK_TAB = CREATIVE_MODE_TABS.register("enchanting_rework_tab", () -> CreativeModeTab.builder()
-            .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> BOOK_OF_ATTUNEMENT_ITEM.get().getDefaultInstance())
+    // Add the example item to the tab. For your own tabs, this method is preferred over the event
+    public static final RegistryObject<CreativeModeTab> ENCHANTING_REWORK_TAB = CREATIVE_MODE_TABS.register("enchanting_rework_tab", CreativeModeTab.builder()
+            .title(Component.literal("Enchanting Rework"))
+            .icon(() -> BOOK_OF_ATTUNEMENT.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(PAGE_OF_ATTUNEMENT_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
-                output.accept(BOOK_OF_ATTUNEMENT_ITEM.get());
-            }).build());
+                output.accept(PAGE_OF_ATTUNEMENT.get());
+                output.accept(BOOK_OF_ATTUNEMENT.get());
+            })::build);
 
     public EnchantingRework()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
-        // Register the Deferred Register to the mod event bus so blocks get registered
-        // BLOCKS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so items get registered
         ITEMS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
-        // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 
         // Register the item to a creative tab
